@@ -17,18 +17,18 @@ disqusShortname = "yourdiscussshortname"
 
 [params]
     author = "Nicholas DiQuattro"
-    description = "Nick DiQuattro's personal website"
+    description = "Data Science and more!"
     keywords = "blog,data,personal"
     info = "DATA SCIENTIST"
-    avatarurl = "images/avatar.jpg"
-    footercontent = "Enter a text here."
-    fixedbarContent = "Do you want to know me more private?→"
-    fixedbarContentAfter = "Thank You! Please share it if you like it→"
+    avatarurl = "me.jpg"
+    footercontent = "Currently @ BetterUp"
+    fixedbarContent = ""
+    fixedbarContentAfter = ""
 
-    hideCredits = false
-    hideCopyright = false
+    hideCredits = true
+    hideCopyright = true
 
-    snsShare = true
+    snsShare = false
 
     thumbnail = "images/tn.png"
 
@@ -55,14 +55,25 @@ disqusShortname = "yourdiscussshortname"
     name = "LinkedIn"
     weight = 3
     url = "https://www.linkedin.com/in/ndiquattro/"
+[[params.social]]
+    name = "StackOverflow"
+    weight = 4
+    url = "https://stackoverflow.com/users/3539631/nick-diquattro?tab=profile"
 
 # Menu links
 [[menu.main]]
     name = "Blog"
-    weight = 1
-    url  = "posts"
+    weight = 2
+    url  = "post"
 [[menu.main]]
     name = "About"
-    weight = 2
+    weight = 1
     url = "about"
-
+#[[menu.main]]
+#    name = "Projects"
+#    weight = 3
+#    url = "projects"
+#[[menu.main]]
+#    name = "Contact"
+#    weight = 4
+#    url = "contact"
