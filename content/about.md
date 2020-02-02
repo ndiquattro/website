@@ -1,11 +1,8 @@
-+++
-title = "About Nick"
-slug = "about"
-thumbnail = "images/tn.png"
-description = "about"
-+++
+---
+date: "2020-02-01"
+title: About
+---
 
----------------------------
 ### Currently
 Data Scientist at [BetterUp](https://www.betterup.co/)
 

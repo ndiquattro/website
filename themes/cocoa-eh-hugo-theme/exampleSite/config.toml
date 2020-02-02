@@ -1,15 +1,13 @@
-ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
-
-baseurl = "https://www.ndiquattro.me/"
-theme = "cocoa-eh-hugo-theme"
+baseurl = "https://example.com/"
+theme = "../.."
 builddrafts = true
 canonifyurls = true
 contentdir = "content"
 languageCode = "en-US"
 layoutdir = "layouts"
 publishdir = "public"
-author = "Nick DiQuattro"
-title = "Nicholas DiQuattro"
+author = "Alexis Tacnet"
+title = "Cocoa Enhanced"
 disqusshortname = ""
 pluralizelisttitles = false
 disableKinds = ["taxonomy", "taxonomyTerm"]
@@ -21,27 +19,26 @@ blog = "blog/:slug/"
 dateform = "Jan 2, 2006"
 dateformfull = "Mon Jan 2 2006 15:04:05 MST"
 description = "Example blog"
-copyright = "Copyright © 2019-{year} Nicholas DiQuattro"
+copyright = "Copyright © 2015-{year} Nishanth Shanmugham"
 # copyrightUrl = "https://creativecommons.org/licenses/by-sa/4.0/"
 logofile = "img/logo.png"
 faviconfile = "img/logo.png"
 highlightjs = true
-highlightjsStyle = "Solarized Light"
 progressively = true
 share = true
 # Share to googleplus, twitter, fb, linkedin by default
 # disable by setting share_on_<social network> = false
 # example: share_on_googleplus = false
 latestpostcount = 5
-github = "ndiquattro"
-#email = ""
-linkedin = "ndiquattro"
-twitter = "ndiquattro"
-#facebook = "facebook_id"
-#instagram = "instagram_id"
-#untappd = "untappd_id"
-#itch_io = "itch_io_id"
-social_banner = "img/logo.png"
+github = "example"
+email = "you@example.com"
+linkedin = "john-example-aa80ue8è"
+twitter = "example"
+facebook = "facebook_id"
+instagram = "instagram_id"
+untappd = "untappd_id"
+itch_io = "itch_io_id"
+social_banner = "img/banner.png"
 usesmallsummarycard = true
 posts_navigation = true
 # issoHost = "comments.domain.tld:1234"
@@ -50,7 +47,7 @@ small_banner_logo = false
 
 [params.utteranc]
 enable = true
-repo = "ndiquattro/cocoa-eh-hugo-theme"
+repo = "mtn/cocoa-eh-hugo-theme"
 issueTerm = "title"
 
 [params.colors]
