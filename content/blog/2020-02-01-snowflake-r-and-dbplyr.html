@@ -1,0 +1,91 @@
+---
+title: Snowflake, R, and dbplyr
+author: Nick DiQuattro
+date: '2020-02-01'
+slug: snowflake-r-and-dbplyr
+categories: []
+tags: []
+description: Desc
+hacker_news_id: ''
+lobsters_id: ''
+meta_img: /images/image.jpg
+---
+
+
+
+<p>Recently we switched our data warehouse at work to <a href="https://www.snowflake.com/">Snowflake</a> and have been pretty happy with the speed boost it provides. As an aside, less happy with the insistence of ALL CAPS for column names. Anyway, I had already built an internal R package for our postgres setup, so I ventured to make it work with Snowflake. In short, it took some doing and I wanted to share what I found worked best in case you find yourself in a similar situation.</p>
+<div id="the-rub" class="section level3">
+<h3>The Rub</h3>
+<p>Snowflake does offer a tutorial on <a href="https://github.com/snowflakedb/dplyr-snowflakedb">connecting R</a> (including dplyr!) to their service, but it depends on rJava and RJODBC, which was overhead I wanted to avoid. Luckily, Snowflake also offers straight <a href="https://docs.snowflake.net/manuals/user-guide/odbc.html">ODBC drivers</a> too!</p>
+<p>The main challenge with using their drivers has been choosing between the two software packages that are available to maintain ODBC drivers: <a href="http://www.unixodbc.org/">unixodbc</a> and <a href="http://www.iodbc.org/">iODBC</a>. Snowflake suggests using iODBC, but <em>may</em> support unixODBC and R Studio suggests unixODBC, by <em>may</em> support iODBC. After trying out both, I have found that the iODBC route is less painful. While I was able make everything work with unixODBC, it involved <a href="http://colmanhumphrey.com/blog/2019/1/26/from-bug-to-bug">editing config files by hand</a>. Which may be fine for you and I, but I had less technical folks to worry about.</p>
+<p>Happily, the iODBC route works pretty smoothly, so that is what I will outline here. Note that it apparently causes trouble to have both installed, so you might want to remove unixODBC first.</p>
+<p>For reference, if entering <code>odbcinst -j</code> into your console works then you have unixODBC installed. If <code>iodbctest</code> works then you have iODBC installed.</p>
+</div>
+<div id="iodbc" class="section level3">
+<h3>iODBC</h3>
+<p>Most of these steps can be done by visiting the websites, downloading the package installers, double clicking, etc., but we’ll outline how to do it from the command line here.</p>
+<p>First, we need to install iODBC</p>
+<pre class="bash"><code>brew install libiodbc</code></pre>
+<p>Next, we download and install the latest <a href="https://docs.snowflake.net/manuals/user-guide/odbc-download.html">odbc drivers from Snowflake</a>. Note you may need to change the version number of the drivers to match what is in <a href="https://sfc-repo.snowflakecomputing.com/odbc/mac64/latest/index.html"><code>latest/</code></a>.</p>
+<pre class="bash"><code># Download file to current working directory
+curl -O https://sfc-repo.snowflakecomputing.com/odbc/mac64/latest/snowflake_odbc_mac-2.20.3.dmg
+
+# Run .pkg
+hdiutil attach snowflake_odbc_mac-2.20.3.dmg
+sudo installer -package /Volumes/snowflakeODBC/snowflakeODBC.pkg -target /
+hdiutil detach /Volumes/snowflakeODBC/</code></pre>
+</div>
+<div id="data-source-names" class="section level3">
+<h3>Data Source Names</h3>
+<p>In this section we will store your credentials as a Data Source Name (DSN) to make it easy to connect R in your code.</p>
+<p>First, we tell iODBC where to look for your DSNs. Entering the following in your console adds a line to the bottom of your <code>.zshrc</code> that sets a persistent environment variable. If you are using bash, replace <code>.zshrc</code> with <code>.bashrc</code>.</p>
+<pre class="bash"><code>echo &#39;export ODBCINI=$HOME/.odbc.ini&#39; &gt;&gt; .zshrc
+#echo &#39;export ODBCINI=$HOME/.odbc.ini&#39; &gt;&gt; .bashrc</code></pre>
+<p>You will need to restart your terminal for this to take effect.</p>
+</div>
+<div id="create-or-edit-your-connection-files." class="section level3">
+<h3>Create or edit your connection files.</h3>
+<p>There should now be a <code>.odbc.ini</code> and <code>.odbcinst.ini</code> in your home directory. If not, create them!</p>
+<p>Your <code>.odbcinst.ini</code> should look similar to this:</p>
+<pre class="bash"><code>[ODBC Drivers]
+Snowflake = Installed
+
+[Snowflake]
+Driver = /opt/snowflake/snowflakeodbc/lib/universal/libSnowflake.dylib
+</code></pre>
+<p>Your <code>.odbc.ini</code> should look like the following. Note that you can change the name in the <code>[]</code> (in the example it’s <code>snowflake</code>) to whatever you want to use to call this connection in your code.</p>
+<pre class="bash"><code>[ODBC Data Sources]
+snowflake = Snowflake
+
+[snowflake]
+Driver      = /opt/snowflake/snowflakeodbc/lib/universal/libSnowflake.dylib
+Description = Typical user settings for Nick
+UID         = &lt;your_username&gt;
+PWD         = &lt;your_password&gt;
+Server      = &lt;your_server&gt;.snowflakecomputing.com
+Role        = &lt;your_snowflake_role&gt;
+Database    = &lt;your_database&gt;
+Warehouse   = &lt;your_warehouse&gt;
+Schema      = &lt;your_default_schema&gt;
+Locale      = en-US
+Tracing     = 0
+</code></pre>
+</div>
+<div id="odbc-r-package" class="section level3">
+<h3>odbc R Package</h3>
+<p>The last step is to install the <a href="https://github.com/r-dbi/odbc"><code>odbc</code> R package</a> <em>from source</em>. The install needs to be from source so that it can catch you are using iODBC and adjust. Here’s the command:</p>
+<pre class="r"><code>install.packages(&quot;odbc&quot;, type = &quot;source&quot;)</code></pre>
+<p>At this point you can start a new R session and run the following commands to make sure R sees your connection options:</p>
+<pre class="r"><code>odbc::odbcListDrivers()</code></pre>
+<pre><code>##        name attribute value
+## 1 Snowflake      &lt;NA&gt;  &lt;NA&gt;</code></pre>
+<pre class="r"><code>odbc::odbcListDataSources()</code></pre>
+<pre><code>##        name description
+## 1 snowflake   Snowflake</code></pre>
+<p>Finally, we can connect and try out some queries</p>
+<pre class="r"><code>con &lt;- DBI::dbConnect(odbc::odbc(), &quot;snowflake&quot;)</code></pre>
+</div>
+<div id="future" class="section level3">
+<h3>Future</h3>
+<p>In future posts I will share some custom dbplyr translations of lubridate / stringr functions I created. Otherwise, I hope this helps someone, thanks!</p>
+</div>
