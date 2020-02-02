@@ -50,8 +50,8 @@ small_banner_logo = false
 
 [params.utteranc]
 enable = true
-repo = "ndiquattro/cocoa-eh-hugo-theme"
-issueTerm = "title"
+repo = "ndiquattro/website"
+issueTerm = "web_comment"
 
 [params.colors]
 identifier = "#527fc1f"
