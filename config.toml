@@ -14,8 +14,11 @@ disqusshortname = ""
 pluralizelisttitles = false
 disableKinds = ["taxonomy", "taxonomyTerm"]
 
+[outputs]
+  page = ["HTML", "RSS"]
+
 [permalinks]
-blog = "blog/:slug/"
+blog = "blog/:year/:month/:slug/"
 
 [params]
 dateform = "Jan 2, 2006"
@@ -37,6 +40,7 @@ github = "ndiquattro"
 #email = ""
 linkedin = "ndiquattro"
 twitter = "ndiquattro"
+stackoverflow = "3539631"
 #facebook = "facebook_id"
 #instagram = "instagram_id"
 #untappd = "untappd_id"
@@ -45,7 +49,7 @@ social_banner = "img/logo.png"
 usesmallsummarycard = true
 posts_navigation = true
 # issoHost = "comments.domain.tld:1234"
-# githubRepo = "githubUsername/repositoryName/tree/master"
+githubRepo = "ndiquattro/website/tree/master"
 small_banner_logo = false
 
 [params.utteranc]

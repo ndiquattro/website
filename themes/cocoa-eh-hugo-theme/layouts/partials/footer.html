@@ -78,6 +78,12 @@
             </a>
         {{ end }}
 
+        {{ if .Site.Params.stackoverflow }}
+            <a href="https://stackoverflow.com/users/{{ .Site.Params.stackoverflow }}" rel=me target="_blank">
+                <img class="icon" src="{{ .Site.BaseURL }}img/stackoverflow.svg" alt="stackoverflow" />
+            </a>
+        {{ end }}
+
         {{ if .Site.Params.twitter }}
             <a href="https://twitter.com/{{ .Site.Params.twitter }}" rel=me target="_blank">
                 <img class="icon" src="{{ .Site.BaseURL }}img/twitter.svg" alt="twitter" />
