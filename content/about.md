@@ -4,6 +4,12 @@ title: About
 ---
 
 ### Currently
+Lead Data Scientist at [Alloy](https://alloy.us/)
+
+Trying to save demoacracy with R.
+
+---------------------------
+### Previously
 Data Scientist at [BetterUp](https://www.betterup.co/)
 
 Buidling data science and machine learing from the ground up at a company with good intentions.
@@ -11,7 +17,6 @@ Buidling data science and machine learing from the ground up at a company with g
 Trying to do as much as possible in R, but Python is great too.
 
 ---------------------------
-### Previously
 Data Science Fellow at [Insight Data Science](https://www.insightdatascience.com/)
 
 Learned a lot about how data science works across many companies while surrounded by cool people.
