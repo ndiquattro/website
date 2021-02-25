@@ -6,13 +6,13 @@ title: About
 ### Currently
 Lead Data Scientist at [Alloy](https://alloy.us/)
 
-Trying to save demoacracy with R.
+Trying to save democracy with R.
 
 ---------------------------
 ### Previously
 Data Scientist at [BetterUp](https://www.betterup.co/)
 
-Buidling data science and machine learing from the ground up at a company with good intentions.
+Building data science and machine learning from the ground up at a company with good intentions.
 
 Trying to do as much as possible in R, but Python is great too.
 
@@ -31,4 +31,4 @@ Studied the visual system in human brain using eye-tracking, fMRI, and statistic
 * [pylinkwrapper](https://github.com/ndiquattro/pylinkwrapper)
 
 ## On a personal note
-I like pickng up my guitar and playing the same songs again and again.
+I like picking up my guitar and playing the same songs again and again.
