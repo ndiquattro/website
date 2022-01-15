@@ -1,0 +1,102 @@
+---
+title: Bayes Deccision Science Translation
+author: R package build
+date: '2021-06-17'
+slug: bayes-deccision-science-translation
+categories: []
+tags: []
+description: Desc
+hacker_news_id: ''
+lobsters_id: ''
+meta_img: /images/image.jpg
+---
+
+I watched a great [talk recorded at PyData 2020 by Ravin Kumar](https://global.pydata.org/talks/149). I wanted to translate the gist of it into R using brms!
+
+```{r}
+library(tidyverse)
+library(brms)
+```
+
+Anisha is starting a newspaper selling business. She buys papers each day for $5 and sells them for \$7. This means the profit for a given day can be calculated with the following function.
+
+```{r}
+daily_profit <- function(inventory, sales) {
+  (min(sales, inventory) * 7) - (inventory * 5)
+}
+```
+
+Let's imagine two weeks of business, one in future we need to predict.
+
+```{r}
+sales_pop <- rnorm(14, 100, 20)
+last_week <- sales_pop[1:7]
+next_week <- sales_pop[8:14]
+```
+
+Now we need a function that will calculate profit for a week.
+
+```{r}
+weeks_profit <- function(inventory, demands) {
+  map_dbl(demands, ~daily_profit(inventory, .x)) %>% sum()
+}
+```
+
+Let's try just taking the mean of last week to predict next week
+
+```{r}
+mean(last_week)
+weeks_profit(round(mean(last_week)), next_week)
+```
+
+Alright, now let's fit a bayes model and see if it can do better
+```{r}
+demands_model <-
+  brm(
+    sales ~ 1,
+    data = tibble(sales = last_week),
+    prior = c(
+      prior(normal(110, 10), class = "Intercept"),
+      prior(exponential(1),  class = "sigma")
+    ),
+    silent = 2,
+    refresh = 0,
+  )
+
+demands_model
+```
+
+Now instead of just a single mean, we have a distribution of potential values to simulate over.
+
+```{r}
+bayes_demands <- predict(demands_model, data.frame(r = 1), summary = FALSE)[, 1]
+
+ggplot(tibble(bayes_demands = bayes_demands), aes(bayes_demands)) +
+  geom_histogram()
+```
+
+
+```{r}
+bayes_opt <-
+  optimize(
+    f = weeks_profit,
+    demands = bayes_demands,
+    interval = c(0, 500),
+    maximum = TRUE
+  )
+
+bayes_opt
+```
+
+Now let's test it on the theortical next week.
+
+```{r}
+weeks_profit(round(bayes_opt$maximum), next_week)
+```
+
+Cool, we have made more money! Here's just using the mean for comparison:
+
+```{r}
+weeks_profit(round(mean(last_week)), next_week)
+```
+

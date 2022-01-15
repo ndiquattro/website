@@ -1,0 +1,133 @@
+---
+title: Bayes Deccision Science Translation
+author: R package build
+date: '2021-06-17'
+slug: bayes-deccision-science-translation
+categories: []
+tags: []
+description: Desc
+hacker_news_id: ''
+lobsters_id: ''
+meta_img: /images/image.jpg
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>I watched a great <a href="https://global.pydata.org/talks/149">talk recorded at PyData 2020 by Ravin Kumar</a>. I wanted to translate the gist of it into R using brms!</p>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.3     ✓ purrr   0.3.4
+## ✓ tibble  3.1.2     ✓ dplyr   1.0.6
+## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+## ✓ readr   1.4.0     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(brms)</code></pre>
+<pre><code>## Loading required package: Rcpp</code></pre>
+<pre><code>## Loading &#39;brms&#39; package (version 2.15.0). Useful instructions
+## can be found by typing help(&#39;brms&#39;). A more detailed introduction
+## to the package is available through vignette(&#39;brms_overview&#39;).</code></pre>
+<pre><code>## 
+## Attaching package: &#39;brms&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     ar</code></pre>
+<p>Anisha is starting a newspaper selling business. She buys papers each day for $5 and sells them for $7. This means the profit for a given day can be calculated with the following function.</p>
+<pre class="r"><code>daily_profit &lt;- function(inventory, sales) {
+  (min(sales, inventory) * 7) - (inventory * 5)
+}</code></pre>
+<p>Let’s imagine two weeks of business, one in future we need to predict.</p>
+<pre class="r"><code>sales_pop &lt;- rnorm(14, 100, 20)
+last_week &lt;- sales_pop[1:7]
+next_week &lt;- sales_pop[8:14]</code></pre>
+<p>Now we need a function that will calculate profit for a week.</p>
+<pre class="r"><code>weeks_profit &lt;- function(inventory, demands) {
+  map_dbl(demands, ~daily_profit(inventory, .x)) %&gt;% sum()
+}</code></pre>
+<p>Let’s try just taking the mean of last week to predict next week</p>
+<pre class="r"><code>mean(last_week)</code></pre>
+<pre><code>## [1] 104.8274</code></pre>
+<pre class="r"><code>weeks_profit(round(mean(last_week)), next_week)</code></pre>
+<pre><code>## [1] 1160.175</code></pre>
+<p>Alright, now let’s fit a bayes model and see if it can do better</p>
+<pre class="r"><code>demands_model &lt;-
+  brm(
+    sales ~ 1,
+    data = tibble(sales = last_week),
+    prior = c(
+      prior(normal(110, 10), class = &quot;Intercept&quot;),
+      prior(exponential(1),  class = &quot;sigma&quot;)
+    ),
+    silent = 2,
+    refresh = 0,
+  )</code></pre>
+<pre><code>## Trying to compile a simple C file</code></pre>
+<pre><code>## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
+## clang -mmacosx-version-min=10.13 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/BH/include&quot; -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/src/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppParallel/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DBOOST_NO_AUTO_PTR  -include &#39;/Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp&#39;  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/usr/local/include   -fPIC  -Wall -g -O2  -c foo.c -o foo.o
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:88:
+## /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:1: error: unknown type name &#39;namespace&#39;
+## namespace Eigen {
+## ^
+## /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:628:16: error: expected &#39;;&#39; after top level declarator
+## namespace Eigen {
+##                ^
+##                ;
+## In file included from &lt;built-in&gt;:1:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/StanHeaders/include/stan/math/prim/mat/fun/Eigen.hpp:13:
+## In file included from /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Dense:1:
+## /Library/Frameworks/R.framework/Versions/4.1/Resources/library/RcppEigen/include/Eigen/Core:96:10: fatal error: &#39;complex&#39; file not found
+## #include &lt;complex&gt;
+##          ^~~~~~~~~
+## 3 errors generated.
+## make: *** [foo.o] Error 1</code></pre>
+<pre class="r"><code>demands_model</code></pre>
+<pre><code>##  Family: gaussian 
+##   Links: mu = identity; sigma = identity 
+## Formula: sales ~ 1 
+##    Data: tibble(sales = last_week) (Number of observations: 7) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
+##          total post-warmup samples = 4000
+## 
+## Population-Level Effects: 
+##           Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## Intercept   105.80      4.09    97.83   113.99 1.00     2869     2471
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+## sigma    11.84      1.79     8.83    15.77 1.00     2985     2703
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Bulk_ESS
+## and Tail_ESS are effective sample size measures, and Rhat is the potential
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<p>Now instead of just a single mean, we have a distribution of potential values to simulate over.</p>
+<pre class="r"><code>bayes_demands &lt;- predict(demands_model, data.frame(r = 1), summary = FALSE)[, 1]
+
+ggplot(tibble(bayes_demands = bayes_demands), aes(bayes_demands)) +
+  geom_histogram()</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<pre class="r"><code>bayes_opt &lt;-
+  optimize(
+    f = weeks_profit,
+    demands = bayes_demands,
+    interval = c(0, 500),
+    maximum = TRUE
+  )
+
+bayes_opt</code></pre>
+<pre><code>## $maximum
+## [1] 98.71461
+## 
+## $objective
+## [1] 726022.5</code></pre>
+<p>Now let’s test it on the theortical next week.</p>
+<pre class="r"><code>weeks_profit(round(bayes_opt$maximum), next_week)</code></pre>
+<pre><code>## [1] 1170.692</code></pre>
+<p>Cool, we have made more money! Here’s just using the mean for comparison:</p>
+<pre class="r"><code>weeks_profit(round(mean(last_week)), next_week)</code></pre>
+<pre><code>## [1] 1160.175</code></pre>

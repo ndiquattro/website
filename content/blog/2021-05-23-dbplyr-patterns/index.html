@@ -1,0 +1,87 @@
+---
+title: dbplyr patterns
+author: R package build
+date: '2021-05-23'
+slug: dbplyr-patterns
+categories: []
+tags: []
+description: Desc
+hacker_news_id: ''
+lobsters_id: ''
+meta_img: /images/image.jpg
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>I’ve been putting off writing because it starts to feel daunting to have to put together a story. So, fuck it, here’s my favorite dbplyr patterns.</p>
+<p>Oh, but first, we need to setup a local database to use.</p>
+<pre class="r"><code>con &lt;- DBI::dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
+DBI::dbWriteTable(con, &quot;mtcars&quot;, mtcars)</code></pre>
+<div id="custom-translated-function" class="section level2">
+<h2>Custom Translated Function</h2>
+<p>Sometimes there isn’t a custom translation available or you have a multi-part function you want to apply in multiple places. Here’s an example of that:</p>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>paste_and_product &lt;- function(c1, c2, c3) {
+  expr(paste({{ c1 }} * 2, {{ c2 }} * 2, {{ c3 }} * 2))
+}
+
+tbl(con, &quot;mtcars&quot;) %&gt;% 
+  mutate(
+    pap = !! paste_and_product(hp, cyl, mpg)
+  )</code></pre>
+<pre><code>## # Source:   lazy query [?? x 12]
+## # Database: sqlite 3.35.5 [:memory:]
+##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb   pap
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+##  1  21       6  160    110  3.9   2.62  16.5     0     1     4     4   880
+##  2  21       6  160    110  3.9   2.88  17.0     0     1     4     4   880
+##  3  22.8     4  108     93  3.85  2.32  18.6     1     1     4     1   744
+##  4  21.4     6  258    110  3.08  3.22  19.4     1     0     3     1   880
+##  5  18.7     8  360    175  3.15  3.44  17.0     0     0     3     2  1400
+##  6  18.1     6  225    105  2.76  3.46  20.2     1     0     3     1   840
+##  7  14.3     8  360    245  3.21  3.57  15.8     0     0     3     4  1960
+##  8  24.4     4  147.    62  3.69  3.19  20       1     0     4     2   496
+##  9  22.8     4  141.    95  3.92  3.15  22.9     1     0     4     2   760
+## 10  19.2     6  168.   123  3.92  3.44  18.3     1     0     4     4   984
+## # … with more rows</code></pre>
+<p>In a nutshell, we are defining a function that returns an <code>expression</code>, which is unevaluated R code. Then within the <code>mutate()</code>, we use <code>!!</code> to execute the function locally, effectively replacing the function call with the R code it generates. The generated R code then goes through the normal translation procedure.</p>
+<p>That’s all great, but what about if there aren’t any translations available?</p>
+</div>
+<div id="custom-sql-function" class="section level2">
+<h2>Custom SQL Function</h2>
+<pre class="r"><code>pandp_sql &lt;- function(c1, c2, c3) {
+  expr(ltrim({{c1}}) + ltrim({{c2}}))
+}
+
+pandp_sql(hey, ho)</code></pre>
+<pre><code>## ltrim(~hey) + ltrim(~ho)</code></pre>
+<pre class="r"><code>tbl(con, &quot;mtcars&quot;) %&gt;% 
+  transmute(
+    pap = !! paste_and_product(hp, cyl, mpg),
+    papsql = !! pandp_sql(hp, cyl)
+  )</code></pre>
+<pre><code>## # Source:   lazy query [?? x 2]
+## # Database: sqlite 3.35.5 [:memory:]
+##      pap papsql
+##    &lt;dbl&gt;  &lt;dbl&gt;
+##  1   880    116
+##  2   880    116
+##  3   744     97
+##  4   880    116
+##  5  1400    183
+##  6   840    111
+##  7  1960    253
+##  8   496     66
+##  9   760     99
+## 10   984    129
+## # … with more rows</code></pre>
+</div>

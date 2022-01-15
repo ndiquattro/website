@@ -1,0 +1,57 @@
+---
+title: dbplyr patterns
+author: R package build
+date: '2021-05-23'
+slug: dbplyr-patterns
+categories: []
+tags: []
+description: Desc
+hacker_news_id: ''
+lobsters_id: ''
+meta_img: /images/image.jpg
+---
+I've been putting off writing because it starts to feel daunting to have to put together a story. So, fuck it, here's my favorite dbplyr patterns.
+
+Oh, but first, we need to setup a local database to use.
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
+DBI::dbWriteTable(con, "mtcars", mtcars)
+```
+
+
+## Custom Translated Function
+
+Sometimes there isn't a custom translation available or you have a multi-part function you want to apply in multiple places. Here's an example of that:
+
+```{r}
+library(dplyr)
+
+paste_and_product <- function(c1, c2, c3) {
+  expr(paste({{ c1 }} * 2, {{ c2 }} * 2, {{ c3 }} * 2))
+}
+
+tbl(con, "mtcars") %>% 
+  mutate(
+    pap = !! paste_and_product(hp, cyl, mpg)
+  )
+```
+
+In a nutshell, we are defining a function that returns an `expression`, which is unevaluated R code. Then within the `mutate()`, we use `!!` to execute the function locally, effectively replacing the function call with the R code it generates. The generated R code then goes through the normal translation procedure.
+
+That's all great, but what about if there aren't any translations available?
+
+## Custom SQL Function
+```{r}
+pandp_sql <- function(c1, c2, c3) {
+  expr(ltrim({{c1}}) + ltrim({{c2}}))
+}
+
+pandp_sql(hey, ho)
+
+tbl(con, "mtcars") %>% 
+  transmute(
+    pap = !! paste_and_product(hp, cyl, mpg),
+    papsql = !! pandp_sql(hp, cyl)
+  )
+```
+
