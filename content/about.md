@@ -8,12 +8,12 @@ date: '2020-02-01'
 
 Trying to prevent further reduction of democracy with R.
 
----------------------------
 ## _Previously_
 #### Lead Data Scientist at [Alloy](https://alloy.us/)
 
 Trying to save democracy with R.
 
+---------------------------
 #### Data Scientist at [BetterUp](https://www.betterup.co/)
 
 Building data science and machine learning from the ground up at a company with good intentions.
