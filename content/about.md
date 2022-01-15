@@ -1,29 +1,33 @@
 ---
-date: "2020-02-01"
-title: About
+title: "About"
+date: '2020-02-01'
 ---
 
-### Currently
-Lead Data Scientist at [Alloy](https://alloy.us/)
+## _Currently_
+#### Staff Data Scientist at [Civitech](https://www.civitech.io/)
+
+Trying to prevent further reduction of democracy with R.
+
+---------------------------
+## _Previously_
+#### Lead Data Scientist at [Alloy](https://alloy.us/)
 
 Trying to save democracy with R.
 
----------------------------
-### Previously
-Data Scientist at [BetterUp](https://www.betterup.co/)
+#### Data Scientist at [BetterUp](https://www.betterup.co/)
 
 Building data science and machine learning from the ground up at a company with good intentions.
 
 Trying to do as much as possible in R, but Python is great too.
 
 ---------------------------
-Data Science Fellow at [Insight Data Science](https://www.insightdatascience.com/)
+#### Data Science Fellow at [Insight Data Science](https://www.insightdatascience.com/)
 
 Learned a lot about how data science works across many companies while surrounded by cool people.
 
 ---------------------------
-### Even more Previous
-PhD in Cognitive Neuroscience from [University of California, Davis](http://mindbrain.ucdavis.edu/)
+## _Even more Previous_
+#### PhD in Cognitive Neuroscience from [University of California, Davis](http://mindbrain.ucdavis.edu/)
 
 Studied the visual system in human brain using eye-tracking, fMRI, and statistical modeling. 
 
