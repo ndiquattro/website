@@ -1,17 +1,22 @@
 ---
 title: "About"
-date: '2020-02-01'
+date: '2023-08-29'
 ---
 
 ## _Currently_
-#### Staff Data Scientist at [Civitech](https://www.civitech.io/)
 
-Trying to prevent further reduction of democracy with R.
+Looking for the next opportunity to help.
 
 ## _Previously_
+
+#### Staff Data Scientist at [Civitech](https://www.civitech.io/)
+
+Trying to prevent the further reduction of democracy with data.
+
+
 #### Lead Data Scientist at [Alloy](https://alloy.us/)
 
-Trying to save democracy with R.
+Trying to save democracy with data.
 
 ---------------------------
 #### Data Scientist at [BetterUp](https://www.betterup.co/)
