@@ -1,0 +1,39 @@
+project:
+  type: website
+
+website:
+  title: "Nicholas DiQuattro"
+  site-url: www.ndiquattro.me
+  repo-url: https://github.com/ndiquattro/website
+  issue-url: https://github.com/ndiquattro/website/issues
+  repo-actions: 'source'
+  search: false
+  back-to-top-navigation: false
+  twitter-card: 
+    creator: "@ndiquattro"
+  page-footer:
+    center: 
+      - text: "Copyright © 2019-2023 Nicholas DiQuattro"
+  navbar:
+    title: false
+    background: "white"
+    right:
+      - text: "Home"
+        file: index.qmd
+      - text: "Blog"
+        file: blog.qmd
+      - text: "About"
+        file: about.qmd
+      - icon: linkedin
+        href: https://linkedin.com/in/ndiquattro/
+      - icon: github
+        href: https://github.com/ndiquattro
+        aria-label: GitHub
+
+format:
+  html:
+    theme: litera
+    css: styles.css
+
+
+

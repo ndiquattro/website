@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jupyter = "*"
+notebook = "*"
+polars = "*"
+nycflights13 = "*"
+altair = "*"
+tq-lahman-datasets = "*"
+vegafusion = {extras = ["embed"], version = "*"}
+install = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
+python_full_version = "3.11.5"

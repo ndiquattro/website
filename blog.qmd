@@ -1,0 +1,10 @@
+---
+title: "Nicholas DiQuattro's Blog"
+listing:
+  contents: posts
+  sort: "date desc"
+  categories: false
+  feed: true
+  filter-ui: True
+  fields: [title, date, reading-time, author, description]
+---

@@ -1,0 +1,56 @@
+---
+title: "Nicholas DiQuattro"
+image: https://avatars.githubusercontent.com/u/7445920?v=4
+about:
+  template: solana
+  image-shape: round
+  links:
+    - icon: twitter
+      text: Twitter
+      href: https://twitter.com/ndiquattro
+    - icon: linkedin
+      text: LinkedIn
+      href: https://linkedin.com/in/ndiquattro/
+    - icon: github
+      text: Github
+      href: https://github.com/ndiquattro
+    - icon: stack-overflow
+      text: StackOverflow
+      href: https://stackoverflow.com/users/3539631/nick-diquattro
+---
+
+Looking for the next opportunity to help.
+
+## Previous Experience
+
+### [**Civitech**](https://civitech.io/) \| Staff Data Scientist
+
+Trying to prevent the further reduction of democracy with data.
+
+### [**Alloy**](https://alloy.us/) \| Lead Data Scientist
+
+Trying to save democracy with data.
+
+### [**BetterUp**](https://www.betterup.co/) \| Data Scientist
+
+Building data science and machine learning from the ground up at a company with good intentions. Trying to do as much as possible in R, but Python is great too.
+
+### [**Insight Data Science**](https://www.insightdatascience.com/) \| Data Science Fellow
+
+Learned a lot about how data science works across many companies while surrounded by cool people.
+
+## Education
+
+### **University of California, Davis** \| Davis, CA
+
+PhD in Cognitive Neuroscience Studied the visual system in human brain using eye-tracking, fMRI, and statistical modeling.
+
+-   [Publications](https://scholar.google.com/citations?user=uQ6RSIAAAAAJ)
+
+### **University of California, Santa Barbara** \| Santa Barbara, CA
+
+B.A in Psychology
+
+## On a personal note
+
+I like picking up my guitar and playing the same songs again and again.

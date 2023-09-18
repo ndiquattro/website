@@ -1,0 +1,355 @@
+---
+title: "Chapter 4 of *R for Data Science*, using `polars` and python"
+author: "Nick DiQuattro"
+date: "2023-09-18"
+---
+
+# Introduction
+
+I recently started to become very interested in the [`polars`](https://www.pola.rs/) python package for data analysis. I appreciated that there seemed to be a philosophical viewpoint about how to interact with data first, then tooling built to enable that viewpoint. It reminded me of the thoughtfulness put into the [tidyverse](https://www.tidyverse.org/) in R. I'm very attached to the tidy approach to data and have found it annoying when needing to use clunkier libraries when working in python. With Polars, there seems to be a true python analogue to the tidyverse (while staying pythonic).
+
+To really compare the two frameworks, I've decided to translate relevant parts of Hadley's Wickham's excellent [*R for Data Science* (2nd edition)](https://r4ds.hadley.nz/) to `polars`.
+
+## Translated libraries
+
+It should be mentioned that there exist python libraries that attempt to directly replicate the tidyverse experience. The ones I know about are:
+
+-   [tidypolars](https://github.com/markfairbanks/tidypolars) - Most relevant to this project, replicates `dplyr` functions with a `polars` backend.
+
+-   [suiba](https://github.com/machow/siuba) - Another dplyr replication, not `polars` backed, but offers SQL translation of verbs.
+
+-   [rpolars](https://github.com/pola-rs/r-polars) - Going the other direction, the `polars` framework in R.
+
+For me, I prefer a complete context switch when moving between R and python. I admire the goals of the above packages, but there always seems to be something a little different that ends up confuses me.
+
+## Format
+
+These posts will focus on code translations from *R for Data Science* with limited commentary. I would suggest reading Hadley's book for context and finding the corresponding section here to see how to perform the equivalent operations with `polars.`
+
+# Translation for Chapter 4
+
+I start with Chapter 4 as that's when the book really gets into data manipulation. The visualization parts would also be interesting to translate someday, but I'm not sure which visualization library in python I like all that much.
+
+## 4.1.1 Prerequisites
+
+The `nycflights13` dataset is made available as a python package from [Michael Chow](https://github.com/machow/nycflights13-py).
+
+Note also that `polars` likes us to import helpers for column selection separately.
+
+```{python}
+import polars as pl
+import polars.selectors as cs
+
+from nycflights13 import flights
+
+pl.Config.set_tbl_rows(10)  # Make it easier to compare results to book.
+
+flights = pl.from_pandas(flights)  # Convert to polars dataframe.
+```
+
+## 4.1.2 nycflights13
+
+Printing a DataFrame shows the head and tail rows.
+
+```{python}
+flights
+```
+
+So great to see `glimpse()` here too.
+
+```{python}
+flights.glimpse()
+```
+
+## 4.1.3 ~~dplyr~~ polars basics
+
+Instead of piping from one function to the next, we use method chaining with `polars`. Wrapping the whole chain in a parenthesis allows us to insert vertical space to improve code readability. You can also put a `\` at the end of each line.
+
+```{python}
+#| eval: false 
+(
+    flights
+    .filter(pl.col('dest') == "IAH")
+    .group_by('year', 'month', 'day')
+    .agg(pl.mean('arr_delay'))
+)
+```
+
+## 4.2.1 `filter()`
+
+Again, the same name! `filter()`ing with polars is more verbose than with dplyr, but that's what happens without [non-standard evaluation](https://adv-r.hadley.nz/metaprogramming.html).
+
+```{python}
+flights.filter(
+    pl.col("dep_delay") > 120
+)
+```
+
+```{python}
+flights.filter(
+    (pl.col("month") == 1) & (pl.col("day") == 1)
+)
+```
+
+```{python}
+flights.filter(
+    (pl.col("month") == 1) | (pl.col("month") == 2)
+)
+```
+
+```{python}
+flights.filter(
+    pl.col("month").is_in([1, 2])
+)
+```
+
+## 4.2.3 ~~`arrange()`~~ `sort()`
+
+Sometimes you don't need a `polars` expression, you can just give the column names as strings.
+
+```{python}
+flights.sort("year", "month", "day", "dep_time")
+```
+
+```{python}
+flights.sort("dep_delay", descending=True)
+```
+
+## 4.2.4 ~~`distinct()`~~ `unique()`
+
+```{python}
+flights.unique()
+```
+
+The default for `unique()` with target columns is equivalent to `distinct(.keep_all = TRUE)`.
+
+```{python}
+flights.unique(["origin", "dest"])
+```
+
+Note though that by default `unique()` will choose *any* of the duplicate rows whereas `distinct()` returns the first of the duplicates.
+
+You can tell unique to choose the first, but according to the documentation it's less performant.
+
+```{python}
+flights.unique(["origin", "dest"], keep="first")
+```
+
+To replicate the default `distinct()` behavior, you `select()` those columns first.
+
+```{python}
+flights.select("origin", "dest").unique()
+```
+
+As far as I could tell, there isn't a convenient `count()` equivalent in `polars`. It's not too bad to replicate though.
+
+```{python}
+(
+    flights
+    .group_by("origin", "dest")
+    .count()
+    .sort('count', descending=True)
+)
+```
+
+## 4.3.1 ~~`mutate()`~~ `with_columns()`
+
+Again we have to be a bit more verbose in `polars`. At least we don't need to repeat the DataFrame name over and over!
+
+```{python}
+flights.with_columns(
+    gain=pl.col("dep_delay") - pl.col("arr_delay"),
+    speed=pl.col("distance") / pl.col("air_time") * 60
+)
+```
+
+From what I can tell, there isn't any `.before` or `.after` equivalents in `polars`. We can approximate the behavior using `.select()`, which behaves similar to `transmute()` in `dplyr`. We also have to switch to using the `.alias()` method for naming our new columns so that we can tack on all the original columns to the end.
+
+```{python}
+flights.select(
+    (pl.col("dep_delay") - pl.col("arr_delay")).alias("gain"),
+    (pl.col("distance") / pl.col("air_time") * 60).alias("speed"),
+    pl.col("*")
+)
+```
+
+The above works well for putting new columns at the start or end of a DataFrame. Doesn't seem like there's an easy way to place them next to a desired column.
+
+## 4.3.2 `select()`
+
+Another shared name here, with similar functionality!
+
+```{python}
+flights.select("year", "month", "day")
+```
+
+I couldn't find a simple way of selecting a range of columns based on their name. It's split up into two parts here.
+
+```{python}
+tcols = flights.columns[flights.find_idx_by_name("year"):flights.find_idx_by_name("day") + 1]
+flights.select(tcols)
+```
+
+To select everything *but* the range of of columns we invoke a selector.
+
+```{python}
+flights.select(~cs.by_name(tcols))
+```
+
+```{python}
+flights.select(cs.string())  # same as using `where(is.character)`
+```
+
+Many of the selection helpers are the same in `polars`:
+
+-   cs.starts_with("abc")
+-   cs.ends_with("xyz")
+-   cs.contains("ijk")
+
+No equivalent to `num_range()` that I could find, however.
+
+Renaming and selection at the same time is possible though.
+
+```{python}
+flights.select(tail_num = "tailnum")
+```
+
+## 4.3.3 `rename()`
+
+`rename()` in `polars` takes a dictionary.
+
+```{python}
+flights.rename({"tailnum": "tail_num"})
+```
+
+## 4.3.4 ~~`relocate()`~~ ???
+
+I can't find a `relocate()` equivalent in `polars`. I think you'd have to get clever with `.select()` and `pl.all()` to make it happen.
+
+## 4.5.1 `group_by()`
+
+The workhorse.
+
+```{python}
+flights.group_by("month")
+```
+
+## 4.5.2 ~~`summarize()`~~ `agg()`
+
+A thing to note about `polars` is most of the aggregating functions ignore missing data by default. Coming from R, you'd expect `NA` results unless you explicitly ignore `NA`s.
+
+```{python}
+(
+    flights
+    .group_by("month")
+    .agg(
+        avg_delay = pl.mean("dep_delay")  # Ignores missing by default
+    )
+    .sort("month")  # To compare to book
+)
+```
+
+```{python}
+(
+    flights
+    .group_by("month")
+    .agg(
+        avg_delay = pl.mean("dep_delay"),
+        n = pl.count()
+    )
+    .sort("month")  # To compare to book.
+)
+```
+
+## 4.5.3 The ~~`slice_`~~ `window` functions
+
+This section is the largest departure so far from `dplyr`. In `polars` we use window functions (like SQL) to perform the type of computations implemented via `slice_`.
+
+```{python}
+(
+    flights 
+    .filter(
+        pl.col("arr_delay") == pl.col("arr_delay").max().over("dest")
+    )
+    .select(
+        pl.col("dest"), 
+        pl.col("*").exclude("dest")  # Example of getting around a lack of `relocate()`.
+    )
+    .sort("dest")  # For book comparison
+)
+```
+
+## 4.5.4 Grouping by multiple variables
+
+```{python}
+daily = flights.group_by("year", "month", "day")
+```
+
+```{python}
+daily.count()
+```
+
+## 4.5.5 ~~Ungrouping~~
+
+No takebacks on grouping in `polars`. However, groupings do not persist after aggregation.
+
+```{python}
+type(daily)
+```
+
+```{python}
+type(daily.count())
+```
+
+## 4.5.6 ~~.by~~
+
+Nothing to do here.
+
+## 4.6 Case study: aggregates and sample size
+
+For fun, let's replicate this code as well.
+
+```{python}
+#| output: false
+from teqniqly.lahman_datasets import LahmanDatasets
+
+ld = LahmanDatasets()
+ld.load()
+
+batting_loc = next(filter(lambda x: x.endswith("Batting"), ld.dataframe_names))
+```
+
+```{python}
+batters = (
+    pl.from_pandas(ld[batting_loc])
+    .group_by("playerID")
+    .agg(
+        performance = pl.col("H").sum() / pl.col("AB").sum(),
+        n = pl.col("AB").sum()
+    )
+)
+
+batters
+```
+
+Plotting isn't really the focus of this project, but let's try replicating this simple chart. This also allows us to try out the `.pipe()` method of a `polars` DataFrame.
+
+```{python}
+import altair as alt
+alt.data_transformers.enable("vegafusion")
+
+chart = (
+    batters
+    .filter(pl.col("n") > 100)
+    .pipe(alt.Chart)
+    .encode(x="n", y="performance")
+    .mark_point(color="black", opacity=1 / 10)
+    .properties(width='container')
+)
+
+chart + chart.transform_loess('n', 'performance').mark_line()
+```
+
+# Outro
+
+That was fun! I remained impressed by `polars` and look forward to diving in further. If you have suggestions for better translations feel free to reach out!

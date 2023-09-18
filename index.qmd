@@ -1,0 +1,40 @@
+---
+listing:
+  id: blog-preview
+  contents: posts
+  sort: "date desc"
+  type: table
+  categories: false
+  sort-ui: false
+  filter-ui: false
+  max-items: 5
+  fields: [title, date, reading-time]
+page-layout: full
+copyright: 
+  holder: Nicholas DiQuattro
+  year: 2023
+---
+::: {.grid}
+
+::: {.g-col-3 .g-start-3}
+![](logo.png)
+:::
+
+::: {.g-col-5}
+#  Nicholas DiQuattro, PhD
+Hello, I'm a data scientist.
+:::
+
+:::
+
+
+::: {.grid}
+
+::: {.g-col-7 .g-start-3}
+### Recent Posts
+:::{#blog-preview}
+:::
+
+:::
+
+:::
