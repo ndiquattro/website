@@ -1,6 +1,6 @@
-# Hugo 
+# Hugo
 public/
-
+_site/
 .DS_Store
 
 # History files
@@ -41,3 +41,19 @@ vignettes/*.pdf
 rsconnect/
 .Rproj.user
 packrat/lib*/
+
+/.quarto/
+.Rproj.user
+.DS_Store
+.Rhistoryt
+.Rhistory
+/.quarto/
+/_*.local
+/.venv/
+/.condaenv/
+*_cache/
+/env/
+/_site/
+
+
+/.luarc.json

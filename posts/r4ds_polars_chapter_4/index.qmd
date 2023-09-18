@@ -47,6 +47,12 @@ pl.Config.set_tbl_rows(10)  # Make it easier to compare results to book.
 flights = pl.from_pandas(flights)  # Convert to polars dataframe.
 ```
 
+For future generations, I'm using the following version of `polars`.
+
+```{python}
+pl.__version__
+```
+
 ## 4.1.2 nycflights13
 
 Printing a DataFrame shows the head and tail rows.

@@ -1,0 +1,11 @@
+{
+  "hash": "658678b7eec4eb577917cb093e669202",
+  "result": {
+    "markdown": "---\ntitle: Setting up R and Rstudio on a Chromebook\nauthor: Nick DiQuattro\ndate: '2020-06-28'\n---\n\nJust a simple setup script that should hopefully work for you!\n\n\n```{bash}\n\n# Install R\nsudo apt-get update\nsudo apt-get install gdebi-core\n\nexport R_VERSION=4.0.2\ncurl -O https://cdn.rstudio.com/r/debian-10/pkgs/r-${R_VERSION}_1_amd64.deb\nsudo gdebi r-${R_VERSION}_1_amd64.deb\n\nsudo ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R\nsudo ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript\n\n# Install Rstudio\nsudo apt install libclang-dev libnss3\ncurl -O https://download1.rstudio.org/desktop/bionic/amd64/rstudio-1.3.959-amd64.deb\nsudo dpkg -i rstudio-1.3.959-amd64.deb\n\n```\n\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
