@@ -4,6 +4,8 @@ project:
 website:
   title: "Nicholas DiQuattro"
   site-url: www.ndiquattro.me
+  favicon: logo.png
+  google-analytics: "UA-64017722-3"
   repo-url: https://github.com/ndiquattro/website
   issue-url: https://github.com/ndiquattro/website/issues
   repo-actions: 'source'
@@ -11,6 +13,7 @@ website:
   back-to-top-navigation: false
   twitter-card: 
     creator: "@ndiquattro"
+    image: logo.png
   page-footer:
     center: 
       - text: "Copyright © 2019-2023 Nicholas DiQuattro"
